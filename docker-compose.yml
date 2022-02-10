@@ -1,0 +1,86 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: trampoline-chatbot-app
+    build:
+      context: .
+      dockerfile: docker/app/Dockerfile
+      target: dev
+    image: trampoline-chatbot/app
+    depends_on:
+      - db
+      - redis
+    ports:
+      - "9101:8080"
+    networks:
+      - container-link
+    volumes:
+      - ./cmd:/go/src/app:rw
+    tty: true
+    stdin_open: true
+    logging:
+      driver: json-file
+      options:
+        max-size: '5m'
+        max-file: '1'
+
+  db:
+    container_name: trampoline-chatbot-db
+    build:
+      context: ./docker/postgresql
+      dockerfile: Dockerfile
+    image: trampoline-chatbot/db
+    env_file:
+      - docker/postgresql/.env
+    ports:
+      - "9102:5432"
+    networks:
+      - container-link
+    volumes:
+      - trampoline-chatbot-db-data:/var/lib/postgresql/data:rw
+    environment:
+      POSTGRES_INITDB_ARGS: '--encoding=UTF-8 --locale=C'
+    logging:
+      driver: json-file
+      options:
+        max-size: '5m'
+        max-file: '1'
+
+  pgadmin4:
+    container_name: trampoline-chatbot-pgadmin4
+    image: dpage/pgadmin4:6.4
+    env_file:
+      - docker/pgadmin4/.env
+    depends_on:
+      - db
+    ports:
+      - "9103:80"
+    networks:
+      - container-link
+    volumes:
+      - trampoline-chatbot-pgadmin4-data:/var/lib/pgadmin:rw
+    logging:
+      driver: json-file
+      options:
+        max-size: '5m'
+        max-file: '1'
+
+  redis:
+    image: redis:alpine
+    ports:
+      - "9104:6379"
+    networks:
+      - container-link
+
+networks:
+  default:
+    name: bridge
+  container-link:
+    name: trampoline-chatbot.docker.internal
+
+volumes:
+  trampoline-chatbot-db-data:
+    driver: local
+  trampoline-chatbot-pgadmin4-data:
+    driver: local

@@ -8,6 +8,8 @@ services:
       dockerfile: docker/app/Dockerfile
       target: dev
     image: trampoline-chatbot/app
+    env_file:
+      - docker/app/.env
     depends_on:
       - db
       - redis

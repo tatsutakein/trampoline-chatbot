@@ -26,3 +26,6 @@ go.work
 
 # JetBrains
 .idea
+
+# Other ignore directory
+tmp/

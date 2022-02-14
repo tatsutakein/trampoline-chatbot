@@ -18,7 +18,8 @@ services:
     networks:
       - container-link
     volumes:
-      - ./cmd:/go/src/app:rw
+      - ./src/app:/go/src/app:rw
+      - /go/src/app/tmp
     tty: true
     stdin_open: true
     logging:

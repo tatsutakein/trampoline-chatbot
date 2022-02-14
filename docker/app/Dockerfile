@@ -12,15 +12,17 @@ WORKDIR ${ROOT}
 RUN apk update \
     && apk add git
 
-COPY go.mod go.sum ./
-RUN go mod download
+COPY ./src/app/go.mod ./src/app/go.sum ./src/app/go.sum ./
 
-CMD ["go", "run", "./trampoline-chatbot/main.go"]
+RUN go mod tidy \
+    && go install github.com/cosmtrek/air@v1.27.3
+
+CMD ["air", "-c", ".air.toml"]
 
 ##
 ## Build
 ##
-FROM golang:1.15.7-alpine as builder
+FROM golang:1.17.6-alpine as builder
 
 ENV ROOT=/go/src/app
 WORKDIR ${ROOT}

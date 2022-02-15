@@ -29,7 +29,7 @@ ENV ROOT=/go/src/app
 WORKDIR ${ROOT}
 
 RUN apk update \
-    && apk add git
+    && apk add git curl
 
 COPY ./src/app/go.mod ./src/app/go.sum ./src/app/go.sum ./
 
@@ -47,5 +47,5 @@ ENV ROOT=/go/src/app
 WORKDIR ${ROOT}
 COPY --from=builder ${ROOT}/binary ${ROOT}
 
-EXPOSE 8080
+ENV PORT=${PORT}
 CMD ["/go/src/app/binary"]

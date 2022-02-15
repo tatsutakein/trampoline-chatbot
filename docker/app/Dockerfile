@@ -25,22 +25,23 @@ CMD ["air", "-c", ".air.toml"]
 FROM golang:1.17.6-alpine as builder
 
 ENV ROOT=/go/src/app
+
 WORKDIR ${ROOT}
 
-RUN apk update && apk add git
-COPY go.mod go.sum ./
-RUN go mod download
+RUN apk update \
+    && apk add git
 
-COPY . ${ROOT}
+COPY ./src/app/go.mod ./src/app/go.sum ./src/app/go.sum ./
+
+RUN go mod tidy
+
+COPY ./src/app ${ROOT}
 RUN CGO_ENABLED=0 GOOS=linux go build -o $ROOT/binary
 
 ##
 ## Deploy
 ##
 FROM scratch as prod
-
-RUN apk update \
-  && apk add --no-cache curl \
 
 ENV ROOT=/go/src/app
 WORKDIR ${ROOT}
